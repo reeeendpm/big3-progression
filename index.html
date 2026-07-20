@@ -474,15 +474,17 @@
           main('squat_heavy','squat','ハイバースクワット',.65,3,2,'トップシングル 87.5%TM ×1'), main('bench_volume','bench','ベンチプレス',.65,3,3), acc('legCurl',true)]),
         day(4,'B','taper','DL調整＋軽いポーズBP','短時間で試技動作を確認',[
           main('dead_heavy','deadlift','コンベンショナルデッドリフト',.65,2,2,'トップシングル 87.5%TM ×1'), main('bench_pause','bench','ポーズベンチプレス',.60,3,2,'胸上で1秒停止'), acc('dyRow',true)]),
-        day(4,'C','taper','BP調整','MAX前はボリュームを残さない',[
+        day(4,'C','taper','BP回復','軽い重量でフォームを整える',[
           main('bench_heavy','bench','ベンチプレス',.60,2,2,'トップシングル 87.5%TM ×1'), acc('rear',true)]),
-        maxDay(4),
+        day(4,'D','taper','SQ＋DL回復','軽い反復で疲労を抜き、動作を維持',[
+          main('squat_volume','squat','ハイバースクワット',.65,3,3,'','余力を十分に残す'),
+          main('dead_pause','deadlift','ポーズデッドリフト',.60,3,3,'床から浮かせた直後で1秒停止','フォーム確認を優先'), acc('legCurl',true), acc('backExt',true)],90),
 
-        day(5,'A','build','SQ強度＋BP量','新TMで次ブロックを再開',[
+        day(5,'A','build','SQ強度＋BP量','既存TMで次ブロックを再開',[
           main('squat_heavy','squat','ハイバースクワット',.75,3,4,'トップシングル 87.5%TM ×1'), main('bench_volume','bench','ベンチプレス',.75,5,4), acc('legCurl'), acc('abs')]),
-        day(5,'B','build','DL強度＋ポーズBP','新TMで成功反復を蓄積',[
+        day(5,'B','build','DL強度＋ポーズBP','既存TMで成功反復を蓄積',[
           main('dead_heavy','deadlift','コンベンショナルデッドリフト',.75,3,4,'トップシングル 87.5%TM ×1'), main('bench_pause','bench','ポーズベンチプレス',.725,4,4,'胸上で1秒停止'), acc('dyRow'), acc('triceps')]),
-        day(5,'C','build','BP強度＋上半身','MAX後は余裕を戻して再開',[
+        day(5,'C','build','BP強度＋上半身','回復週後は余裕を戻して再開',[
           main('bench_heavy','bench','ベンチプレス',.825,3,4,'トップシングル 90%TM ×1'), acc('incline'), acc('chin'), acc('shoulder',true), acc('rear',true), acc('preacher',true)]),
         day(5,'D','build','SQ量＋DL技術','技術量を再び積み上げる',[
           main('squat_volume','squat','ハイバースクワット',.725,4,4), main('dead_pause','deadlift','ポーズデッドリフト',.675,4,3,'床から浮かせた直後で1秒停止'), acc('vSquat'), acc('legCurl'), acc('backExt'), acc('abs',true)],90),
@@ -535,8 +537,7 @@
       function fmt(value) { return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(2))); }
       function todayISO() { return new Date().toLocaleDateString('sv-SE'); }
       function tmFor(index, lift) {
-        const maxes = program[index].week <= 4 ? state.block1Maxes : state.block2Maxes;
-        return roundPlate(maxes[lift] * .95);
+        return roundPlate(state.block1Maxes[lift] * .95);
       }
       function baseTarget(index, exercise) {
         let weight = null;
@@ -596,7 +597,7 @@
         if (session.maxTest) {
           return `<div class="hero"><p class="eyebrow">Week ${session.week} · Day ${session.letter}</p><h2>${session.title}</h2><p class="hero-copy">${session.focus}</p><div class="hero-meta"><span class="tag main">${PHASES[session.phase]}</span><span class="tag">約${session.duration}分</span></div></div>
             <div class="section-head"><div><h3>測定の流れ</h3><p>MAX詳細は当日の動きに合わせて調整</p></div></div>
-            <div class="card"><ol class="rule-list"><li>スクワット → ベンチプレス → デッドリフトの順</li><li>各種目で成功した最高重量を記録</li><li>新1RMの95%を次ブロックのTMに設定</li><li>記録が出なさそうなら「延期」、測定を見送って進むなら「スキップ」</li></ol></div>`;
+            <div class="card"><ol class="rule-list"><li>スクワット → ベンチプレス → デッドリフトの順</li><li>各種目で成功した最高重量を記録</li><li>新1RMの95%を次サイクルのTMに設定</li><li>記録が出なさそうなら「延期」、測定を見送って終了するなら「スキップ」</li></ol></div>`;
         }
         return `<div class="hero"><p class="eyebrow">Week ${session.week} · Day ${session.letter}</p><h2>${session.title}</h2><p class="hero-copy">${session.focus}</p><div class="hero-meta"><span class="tag main">${PHASES[session.phase]}</span><span class="tag">約${session.duration}分</span><span class="tag">SQ週2・BP週3・DL週2</span></div></div>
           <div class="section-head"><div><h3>${editable ? '今日のメニュー' : 'メニュー詳細'}</h3><p>上から優先。時間不足時は「時間次第」から省略</p></div></div>
@@ -769,18 +770,18 @@
         const before = { ...state.maxes };
         for (const lift of Object.keys(tested)) state.maxes[lift] = Math.max(state.maxes[lift], tested[lift]);
         state.maxHistory.push({ date: todayISO(), source: `Week ${program[index].week} MAX`, ...state.maxes });
-        if (program[index].week === 4) state.block2Maxes = { ...state.maxes };
         state.streaks = {};
         record(index, 'complete', [], { maxTest: { entered: tested, before, after: { ...state.maxes }, note: document.getElementById('test-note').value } });
         document.getElementById('max-dialog').close();
-        advance(); toast('MAXを保存し、以降の重量を自動再計算しました');
+        advance(); toast('8週目のMAXを保存しました');
       }
 
       function renderProgram() {
         const grid = document.getElementById('week-grid');
         grid.innerHTML = Array.from({ length: 8 }, (_, w) => {
           const start = w * 4;
-          return `<div class="card week-card"><div class="week-title"><strong>Week ${w + 1}</strong><span>${w === 3 || w === 7 ? 'MAX測定週' : w < 2 || w === 4 ? '蓄積' : '強度'}</span></div><div class="day-row">${program.slice(start, start + 4).map((s, offset) => {
+          const weekLabels = ['蓄積', '蓄積', '強度', '回復', '蓄積', '強度', '強度', 'MAX測定週'];
+          return `<div class="card week-card"><div class="week-title"><strong>Week ${w + 1}</strong><span>${weekLabels[w]}</span></div><div class="day-row">${program.slice(start, start + 4).map((s, offset) => {
             const i = start + offset, status = state.statuses[i] || '';
             const cls = [i === state.currentIndex && !state.finished ? 'current' : '', status].filter(Boolean).join(' ');
             return `<button class="day-pill ${cls}" data-program-index="${i}"><strong>Day ${s.letter}</strong>${s.maxTest ? 'MAX' : PHASES[s.phase]}</button>`;
@@ -899,7 +900,7 @@
       document.getElementById('save-max-test').addEventListener('click', event => { event.preventDefault(); saveMaxTest(); });
       document.getElementById('save-maxes').addEventListener('click', () => {
         state.maxes = { squat: Number(document.getElementById('max-squat').value), bench: Number(document.getElementById('max-bench').value), deadlift: Number(document.getElementById('max-deadlift').value) };
-        if (program[state.currentIndex]?.week <= 4) state.block1Maxes = { ...state.maxes }; else state.block2Maxes = { ...state.maxes };
+        state.block1Maxes = { ...state.maxes }; state.block2Maxes = { ...state.maxes };
         state.maxHistory.push({ date: todayISO(), source: '手動', ...state.maxes }); record(state.currentIndex, 'manual', [], { manualMax: { ...state.maxes } }); saveState(); renderAll(); toast('MAXを手動更新しました');
       });
       document.getElementById('move-session-btn').addEventListener('click', () => {
