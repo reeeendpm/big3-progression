@@ -465,26 +465,26 @@
           main('squat_heavy','squat','ハイバースクワット',.775,3,4,'トップシングル 90%TM ×1'), main('bench_volume','bench','ベンチプレス',.75,5,4), acc('legCurl'), acc('abs')]),
         day(3,'B','intensify','DL強度＋ポーズBP','重いDLを失敗なしで処理',[
           main('dead_heavy','deadlift','コンベンショナルデッドリフト',.775,3,4,'トップシングル 90%TM ×1'), main('bench_pause','bench','ポーズベンチプレス',.725,4,4,'胸上で1秒停止'), acc('dyRow'), acc('triceps')]),
-        day(3,'C','intensify','BP強度＋上半身','MAX前の重いBP練習',[
+        day(3,'C','intensify','BP強度＋上半身','第1ブロック終盤の重いBP練習',[
           main('bench_heavy','bench','ベンチプレス',.825,3,4,'トップシングル 92.5%TM ×1'), acc('incline'), acc('chin'), acc('rear',true), acc('preacher',true)]),
         day(3,'D','intensify','SQ量＋DL技術','疲労を増やしすぎない量へ',[
           main('squat_volume','squat','ハイバースクワット',.725,4,4), main('dead_pause','deadlift','ポーズデッドリフト',.675,4,3,'床から浮かせた直後で1秒停止'), acc('vSquat'), acc('legCurl'), acc('backExt')],90),
 
-        day(4,'A','taper','SQ調整＋軽いBP','疲労を抜きながら動きを確認',[
-          main('squat_heavy','squat','ハイバースクワット',.65,3,2,'トップシングル 87.5%TM ×1'), main('bench_volume','bench','ベンチプレス',.65,3,3), acc('legCurl',true)]),
-        day(4,'B','taper','DL調整＋軽いポーズBP','短時間で試技動作を確認',[
-          main('dead_heavy','deadlift','コンベンショナルデッドリフト',.65,2,2,'トップシングル 87.5%TM ×1'), main('bench_pause','bench','ポーズベンチプレス',.60,3,2,'胸上で1秒停止'), acc('dyRow',true)]),
-        day(4,'C','taper','BP回復','軽い重量でフォームを整える',[
-          main('bench_heavy','bench','ベンチプレス',.60,2,2,'トップシングル 87.5%TM ×1'), acc('rear',true)]),
-        day(4,'D','taper','SQ＋DL回復','軽い反復で疲労を抜き、動作を維持',[
-          main('squat_volume','squat','ハイバースクワット',.65,3,3,'','余力を十分に残す'),
-          main('dead_pause','deadlift','ポーズデッドリフト',.60,3,3,'床から浮かせた直後で1秒停止','フォーム確認を優先'), acc('legCurl',true), acc('backExt',true)],90),
+        day(4,'A','intensify','SQ強度＋BP量','第1ブロックの最終強度を積む',[
+          main('squat_heavy','squat','ハイバースクワット',.80,3,4,'トップシングル 92.5%TM ×1','失敗せず同じ軌道を再現'), main('bench_volume','bench','ベンチプレス',.775,5,4), acc('legCurl'), acc('abs')]),
+        day(4,'B','intensify','DL強度＋ポーズBP','通常DLの高強度反復を完遂',[
+          main('dead_heavy','deadlift','コンベンショナルデッドリフト',.80,3,4,'トップシングル 92.5%TM ×1','床引きからロックアウトまで姿勢を維持'), main('bench_pause','bench','ポーズベンチプレス',.75,4,4,'胸上で1秒停止'), acc('dyRow'), acc('triceps')]),
+        day(4,'C','intensify','BP強度＋上半身','重いBPを失敗なしで処理',[
+          main('bench_heavy','bench','ベンチプレス',.85,2,4,'トップシングル 95%TM ×1','トップシングルはRPE8以下'), acc('incline'), acc('chin'), acc('rear',true), acc('preacher',true)]),
+        day(4,'D','intensify','SQ量＋DL技術','強度を上げながら反復技術を維持',[
+          main('squat_volume','squat','ハイバースクワット',.75,4,4,'','全セット同じ深さ'),
+          main('dead_pause','deadlift','ポーズデッドリフト',.70,3,4,'床から浮かせた直後で1秒停止','開始姿勢を崩さない'), acc('vSquat'), acc('legCurl'), acc('backExt'), acc('abs',true)],90),
 
         day(5,'A','build','SQ強度＋BP量','既存TMで次ブロックを再開',[
           main('squat_heavy','squat','ハイバースクワット',.75,3,4,'トップシングル 87.5%TM ×1'), main('bench_volume','bench','ベンチプレス',.75,5,4), acc('legCurl'), acc('abs')]),
         day(5,'B','build','DL強度＋ポーズBP','既存TMで成功反復を蓄積',[
           main('dead_heavy','deadlift','コンベンショナルデッドリフト',.75,3,4,'トップシングル 87.5%TM ×1'), main('bench_pause','bench','ポーズベンチプレス',.725,4,4,'胸上で1秒停止'), acc('dyRow'), acc('triceps')]),
-        day(5,'C','build','BP強度＋上半身','回復週後は余裕を戻して再開',[
+        day(5,'C','build','BP強度＋上半身','第2ブロックは余裕を戻して再開',[
           main('bench_heavy','bench','ベンチプレス',.825,3,4,'トップシングル 90%TM ×1'), acc('incline'), acc('chin'), acc('shoulder',true), acc('rear',true), acc('preacher',true)]),
         day(5,'D','build','SQ量＋DL技術','技術量を再び積み上げる',[
           main('squat_volume','squat','ハイバースクワット',.725,4,4), main('dead_pause','deadlift','ポーズデッドリフト',.675,4,3,'床から浮かせた直後で1秒停止'), acc('vSquat'), acc('legCurl'), acc('backExt'), acc('abs',true)],90),
@@ -780,7 +780,7 @@
         const grid = document.getElementById('week-grid');
         grid.innerHTML = Array.from({ length: 8 }, (_, w) => {
           const start = w * 4;
-          const weekLabels = ['蓄積', '蓄積', '強度', '回復', '蓄積', '強度', '強度', 'MAX測定週'];
+          const weekLabels = ['蓄積', '蓄積', '強度', '強度', '蓄積', '強度', '強度', 'MAX測定週'];
           return `<div class="card week-card"><div class="week-title"><strong>Week ${w + 1}</strong><span>${weekLabels[w]}</span></div><div class="day-row">${program.slice(start, start + 4).map((s, offset) => {
             const i = start + offset, status = state.statuses[i] || '';
             const cls = [i === state.currentIndex && !state.finished ? 'current' : '', status].filter(Boolean).join(' ');
