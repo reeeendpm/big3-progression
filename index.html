@@ -1,0 +1,920 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0e12">
+  <meta name="description" content="スクワット・ベンチプレス・デッドリフトの8週間進行管理">
+  <title>BIG3 Progression</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090b0f;
+      --panel: #11151b;
+      --panel-2: #171c24;
+      --line: #2a313d;
+      --text: #f3f6f9;
+      --muted: #9aa5b2;
+      --accent: #72f0aa;
+      --accent-2: #41c97f;
+      --blue: #6fb5ff;
+      --amber: #ffca68;
+      --red: #ff727f;
+      --shadow: 0 18px 50px rgb(0 0 0 / .28);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 85% -10%, rgb(65 201 127 / .12), transparent 34rem),
+        var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button, select { touch-action: manipulation; }
+    button { cursor: pointer; }
+    a { color: var(--accent); }
+    .shell { width: min(100%, 880px); margin: 0 auto; padding: 0 16px; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: max(12px, env(safe-area-inset-top)) 0 10px;
+      background: rgb(9 11 15 / .86);
+      border-bottom: 1px solid rgb(255 255 255 / .06);
+      backdrop-filter: blur(18px);
+    }
+    .topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-mark {
+      width: 38px; height: 38px; border-radius: 12px;
+      display: grid; place-items: center;
+      background: linear-gradient(145deg, var(--accent), var(--accent-2));
+      color: #06130c; font-weight: 950; letter-spacing: -.08em;
+      box-shadow: 0 8px 28px rgb(65 201 127 / .22);
+    }
+    .brand h1 { margin: 0; font-size: 16px; letter-spacing: .02em; white-space: nowrap; }
+    .brand p { margin: 1px 0 0; color: var(--muted); font-size: 11px; }
+    .phase-chip {
+      flex: 0 0 auto; padding: 7px 10px; border-radius: 999px;
+      background: var(--panel-2); border: 1px solid var(--line);
+      color: var(--muted); font-size: 12px; font-weight: 800;
+    }
+    .phase-chip strong { color: var(--text); }
+
+    main { padding: 22px 0 calc(102px + env(safe-area-inset-bottom)); }
+    .screen { display: none; animation: rise .22s ease; }
+    .screen.active { display: block; }
+    @keyframes rise { from { opacity: 0; transform: translateY(5px); } }
+
+    .hero {
+      border: 1px solid rgb(114 240 170 / .23);
+      border-radius: 24px;
+      padding: 20px;
+      background:
+        linear-gradient(145deg, rgb(114 240 170 / .12), transparent 55%),
+        var(--panel);
+      box-shadow: var(--shadow);
+    }
+    .eyebrow { margin: 0 0 5px; color: var(--accent); font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .hero h2 { margin: 0; font-size: clamp(25px, 7vw, 40px); line-height: 1.12; letter-spacing: -.035em; }
+    .hero-copy { margin: 9px 0 0; color: var(--muted); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .tag { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); font-size: 11px; font-weight: 800; }
+    .tag.main { color: var(--accent); border-color: rgb(114 240 170 / .28); }
+    .tag.optional { color: var(--amber); border-color: rgb(255 202 104 / .25); }
+
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 12px; margin: 26px 2px 12px; }
+    .section-head h2, .section-head h3 { margin: 0; line-height: 1.2; }
+    .section-head h2 { font-size: 22px; }
+    .section-head h3 { font-size: 17px; }
+    .section-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+
+    .exercise-list { display: grid; gap: 12px; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 8px 30px rgb(0 0 0 / .12);
+    }
+    .exercise-card { position: relative; overflow: hidden; }
+    .exercise-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--line); }
+    .exercise-card[data-lift="squat"]::before { background: var(--amber); }
+    .exercise-card[data-lift="bench"]::before { background: var(--blue); }
+    .exercise-card[data-lift="deadlift"]::before { background: var(--accent); }
+    .exercise-top { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+    .exercise-top h3 { margin: 0; font-size: 17px; line-height: 1.3; }
+    .exercise-top p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .target { margin: 15px 0 12px; font-weight: 950; font-size: clamp(26px, 8vw, 34px); letter-spacing: -.035em; line-height: 1; }
+    .target small { font-size: 13px; color: var(--muted); letter-spacing: 0; font-weight: 700; }
+    .secondary-target { margin: -3px 0 13px; padding: 9px 11px; border-radius: 11px; background: var(--panel-2); color: var(--muted); font-size: 12px; }
+    .auto-note { margin: 0 0 12px; padding: 8px 10px; border-radius: 10px; color: var(--accent); background: rgb(114 240 170 / .07); font-size: 11px; font-weight: 750; }
+
+    .field { display: grid; gap: 6px; }
+    .field label, .field-label { color: var(--muted); font-size: 11px; font-weight: 800; }
+    select, input, textarea {
+      width: 100%; min-height: 46px;
+      border-radius: 12px; border: 1px solid var(--line);
+      background: #0c1015; color: var(--text); padding: 10px 12px;
+      outline: none;
+    }
+    select:focus, input:focus, textarea:focus { border-color: var(--accent-2); box-shadow: 0 0 0 3px rgb(65 201 127 / .12); }
+    textarea { min-height: 76px; resize: vertical; }
+    .result-select { font-weight: 800; }
+    .result-select:valid { border-color: rgb(114 240 170 / .38); }
+    .details-toggle { margin-top: 11px; }
+    details summary { cursor: pointer; color: var(--muted); font-size: 12px; font-weight: 800; list-style: none; }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::after { content: "＋"; float: right; color: var(--accent); }
+    details[open] summary::after { content: "−"; }
+    .actual-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+    .actual-grid .wide { grid-column: 1 / -1; }
+    .mini-btn { border: 0; background: transparent; color: var(--muted); padding: 6px; font-size: 12px; text-decoration: underline; }
+
+    .action-dock { position: sticky; bottom: calc(75px + env(safe-area-inset-bottom)); z-index: 12; margin-top: 18px; padding: 10px; border-radius: 18px; background: rgb(17 21 27 / .92); border: 1px solid var(--line); backdrop-filter: blur(15px); box-shadow: var(--shadow); }
+    .action-primary { display: grid; grid-template-columns: 1fr; gap: 8px; }
+    .action-secondary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .btn { min-height: 49px; border: 1px solid var(--line); border-radius: 13px; padding: 11px 14px; background: var(--panel-2); color: var(--text); font-weight: 900; }
+    .btn.primary { background: var(--accent); color: #06130c; border-color: var(--accent); }
+    .btn.warning { color: var(--amber); }
+    .btn.danger { color: var(--red); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    .bottom-nav {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+      padding: 8px 10px max(8px, env(safe-area-inset-bottom));
+      background: rgb(9 11 15 / .94); border-top: 1px solid var(--line); backdrop-filter: blur(18px);
+    }
+    .nav-inner { width: min(100%, 680px); margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+    .nav-btn { min-height: 55px; border: 0; border-radius: 12px; color: var(--muted); background: transparent; font-size: 10px; font-weight: 850; }
+    .nav-btn span { display: block; margin: 0 auto 2px; font-size: 20px; line-height: 1; }
+    .nav-btn.active { color: var(--accent); background: rgb(114 240 170 / .08); }
+
+    .week-grid { display: grid; gap: 13px; }
+    .week-card { padding: 14px; }
+    .week-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .week-title strong { font-size: 15px; }
+    .week-title span { color: var(--muted); font-size: 11px; }
+    .day-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+    .day-pill { min-height: 54px; padding: 6px 3px; border-radius: 11px; border: 1px solid var(--line); background: #0d1117; color: var(--muted); font-weight: 850; font-size: 11px; }
+    .day-pill strong { display: block; color: var(--text); font-size: 13px; }
+    .day-pill.current { border-color: var(--accent); color: var(--accent); }
+    .day-pill.complete { background: rgb(114 240 170 / .1); border-color: rgb(114 240 170 / .25); }
+    .day-pill.skip { background: rgb(255 202 104 / .08); border-color: rgb(255 202 104 / .22); }
+    .day-pill.postponed { box-shadow: inset 0 0 0 1px rgb(111 181 255 / .35); }
+    .program-preview { margin-top: 18px; }
+
+    .history-list { display: grid; gap: 10px; }
+    .history-item { display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 11px; }
+    .status-dot { width: 12px; height: 12px; margin-top: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 5px rgb(114 240 170 / .08); }
+    .status-dot.skip { background: var(--amber); box-shadow: 0 0 0 5px rgb(255 202 104 / .07); }
+    .status-dot.postponed { background: var(--blue); box-shadow: 0 0 0 5px rgb(111 181 255 / .07); }
+    .history-item h3 { margin: 0; font-size: 15px; }
+    .history-item p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+    .status-text { font-size: 11px; font-weight: 900; color: var(--accent); }
+
+    .metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .metric { padding: 15px; }
+    .metric p { margin: 0; color: var(--muted); font-size: 11px; }
+    .metric strong { display: block; margin-top: 3px; font-size: 27px; line-height: 1.15; letter-spacing: -.04em; }
+    .metric.total { grid-column: 1 / -1; background: linear-gradient(135deg, rgb(114 240 170 / .13), var(--panel)); border-color: rgb(114 240 170 / .25); }
+    .chart-wrap { overflow-x: auto; padding-bottom: 3px; }
+    #progress-chart { width: 100%; min-width: 520px; height: 250px; display: block; }
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 11px; }
+    .legend span::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 5px; border-radius: 50%; background: currentColor; }
+    .weekly-bars { display: grid; gap: 11px; }
+    .bar-row { display: grid; grid-template-columns: 54px 1fr 38px; align-items: center; gap: 9px; font-size: 12px; }
+    .bar { height: 11px; overflow: hidden; background: #0b0e12; border-radius: 999px; border: 1px solid var(--line); }
+    .bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); border-radius: inherit; }
+
+    .settings-grid { display: grid; gap: 12px; }
+    .max-edit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .reference-list { display: grid; gap: 10px; }
+    .reference-card h3 { margin: 0; font-size: 15px; }
+    .reference-card p { margin: 7px 0 0; color: var(--muted); font-size: 12px; }
+    .reference-card a { display: inline-flex; margin-top: 10px; font-size: 12px; font-weight: 900; text-decoration: none; }
+    .rule-list { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 12px; }
+    .rule-list li + li { margin-top: 5px; }
+    .empty { padding: 26px 18px; text-align: center; color: var(--muted); }
+    .notice { margin-top: 12px; padding: 11px 12px; border-radius: 12px; background: rgb(255 202 104 / .08); color: var(--amber); font-size: 12px; border: 1px solid rgb(255 202 104 / .18); }
+
+    dialog { width: min(calc(100% - 28px), 520px); max-height: 90vh; overflow: auto; padding: 0; border: 1px solid var(--line); border-radius: 22px; background: var(--panel); color: var(--text); box-shadow: 0 24px 100px #000; }
+    dialog::backdrop { background: rgb(0 0 0 / .74); backdrop-filter: blur(4px); }
+    .dialog-body { padding: 20px; }
+    .dialog-body h2 { margin: 0; font-size: 22px; }
+    .dialog-body > p { margin: 7px 0 18px; color: var(--muted); font-size: 13px; }
+    .dialog-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+    .setup-dialog .dialog-actions { grid-template-columns: 1fr; }
+    .setup-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .setup-logo { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; margin-bottom: 14px; background: var(--accent); color: #06130c; font-weight: 950; font-size: 21px; }
+
+    .toast { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); z-index: 100; transform: translate(-50%, 15px); width: min(calc(100% - 32px), 520px); padding: 12px 15px; border-radius: 13px; color: #06130c; background: var(--accent); font-weight: 850; font-size: 13px; opacity: 0; pointer-events: none; transition: .2s ease; box-shadow: var(--shadow); }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (min-width: 700px) {
+      .shell { padding-left: 24px; padding-right: 24px; }
+      main { padding-top: 30px; }
+      .hero { padding: 28px; }
+      .exercise-list.two-col { grid-template-columns: repeat(2, 1fr); }
+      .metrics { grid-template-columns: repeat(4, 1fr); }
+      .metric.total { grid-column: auto; }
+      .settings-grid { grid-template-columns: repeat(2, 1fr); }
+      .settings-grid .wide { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">B3</div>
+        <div><h1>BIG3 Progression</h1><p>8週間・週4日</p></div>
+      </div>
+      <div class="phase-chip" id="top-phase"><strong>準備中</strong></div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section id="screen-today" class="screen active" aria-labelledby="today-title">
+      <div id="today-content"></div>
+    </section>
+
+    <section id="screen-program" class="screen" aria-labelledby="program-title">
+      <div class="section-head"><div><h2 id="program-title">8週間プログラム</h2><p>タップで各日の狙いと重量を確認</p></div></div>
+      <div id="week-grid" class="week-grid"></div>
+      <div id="program-preview" class="program-preview"></div>
+    </section>
+
+    <section id="screen-history" class="screen" aria-labelledby="history-title">
+      <div class="section-head"><div><h2 id="history-title">履歴</h2><p>完了・延期・スキップを端末内に保存</p></div></div>
+      <div id="history-list" class="history-list"></div>
+    </section>
+
+    <section id="screen-progress" class="screen" aria-labelledby="progress-title">
+      <div class="section-head"><div><h2 id="progress-title">進捗</h2><p>1RMと週ごとの実施状況</p></div></div>
+      <div id="metrics" class="metrics"></div>
+      <div class="section-head"><div><h3>1RM推移</h3><p>MAX測定または手動更新を反映</p></div></div>
+      <div class="card">
+        <div class="chart-wrap"><svg id="progress-chart" viewBox="0 0 600 250" role="img" aria-label="スクワット、ベンチプレス、デッドリフトの1RM推移グラフ"></svg></div>
+        <div class="legend"><span style="color:var(--amber)">Squat</span><span style="color:var(--blue)">Bench</span><span style="color:var(--accent)">Deadlift</span></div>
+      </div>
+      <div class="section-head"><div><h3>週ごとの完了数</h3><p>4セッションを100%として表示</p></div></div>
+      <div class="card"><div id="weekly-bars" class="weekly-bars"></div></div>
+    </section>
+
+    <section id="screen-settings" class="screen" aria-labelledby="settings-title">
+      <div class="section-head"><div><h2 id="settings-title">設定・参考</h2><p>手動調整と採用した公開動画</p></div></div>
+      <div class="settings-grid">
+        <div class="card">
+          <h3 style="margin-top:0">現在の1RM</h3>
+          <div class="max-edit-grid">
+            <div class="field"><label for="max-squat">SQ</label><input id="max-squat" type="number" min="20" step="2.5"></div>
+            <div class="field"><label for="max-bench">BP</label><input id="max-bench" type="number" min="20" step="2.5"></div>
+            <div class="field"><label for="max-deadlift">DL</label><input id="max-deadlift" type="number" min="20" step="2.5"></div>
+          </div>
+          <button class="btn" style="width:100%;margin-top:10px" id="save-maxes">MAXを手動更新</button>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">進行位置</h3>
+          <div class="field"><label for="move-session">週・Dayを選択</label><select id="move-session"></select></div>
+          <button class="btn" style="width:100%;margin-top:10px" id="move-session-btn">この位置へ移動</button>
+          <p style="color:var(--muted);font-size:11px;margin-bottom:0">履歴は削除されません。意図的な移動として記録されます。</p>
+        </div>
+        <div class="card wide">
+          <h3 style="margin-top:0">自動調整ルール</h3>
+          <ul class="rule-list">
+            <li>余裕あり：次の予定値に BP +2.5kg、SQ/DL +5kg</li>
+            <li>適正：次の予定値どおり</li>
+            <li>かなり重い：同重量を再提示</li>
+            <li>未達：次回 −5%。2回連続で −7.5%かつ回数 −1</li>
+            <li>かなり重いが2回連続：重量を据え置き、セット数 −1</li>
+            <li>未実施：同じ負荷を次回へ持ち越し</li>
+            <li>補助種目：上限回数達成で最小単位だけ増量。自動セット増はなし</li>
+          </ul>
+          <div class="field" style="margin-top:12px"><label for="reset-slot">種目別の提案リセット</label><select id="reset-slot"></select></div>
+          <button class="btn" style="margin-top:10px" id="reset-slot-btn">選択種目を初期提案へ戻す</button>
+        </div>
+        <div class="card wide">
+          <details>
+            <summary>グランフィットネス24江坂店の使用設備</summary>
+            <div id="equipment-list" style="margin-top:13px"></div>
+          </details>
+        </div>
+      </div>
+      <div class="section-head"><div><h3>パワーチューブ参考動画</h3><p>公開動画から本プログラムに関係する20本を選定</p></div></div>
+      <div id="reference-list" class="reference-list"></div>
+      <p class="notice">動画は参考情報です。サイト内へ埋め込まず、タイトルとリンク、採用した考え方のみ整理しています。痛みや強い違和感が出た場合は記録より安全を優先してください。</p>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="メインナビゲーション">
+    <div class="nav-inner">
+      <button class="nav-btn active" data-screen="today"><span>●</span>今日</button>
+      <button class="nav-btn" data-screen="program"><span>▦</span>8週間</button>
+      <button class="nav-btn" data-screen="history"><span>≡</span>履歴</button>
+      <button class="nav-btn" data-screen="progress"><span>↗</span>進捗</button>
+      <button class="nav-btn" data-screen="settings"><span>⚙</span>設定</button>
+    </div>
+  </nav>
+
+  <dialog id="setup-dialog" class="setup-dialog">
+    <form method="dialog" class="dialog-body" id="setup-form">
+      <div class="setup-logo">B3</div>
+      <h2>8週間を始める</h2>
+      <p>現在の実1RMを確認してください。トレーニングMAXは95%で自動計算します。</p>
+      <div class="setup-grid">
+        <div class="field"><label for="setup-squat">SQ</label><input id="setup-squat" type="number" min="20" step="2.5" value="140" required></div>
+        <div class="field"><label for="setup-bench">BP</label><input id="setup-bench" type="number" min="20" step="2.5" value="112.5" required></div>
+        <div class="field"><label for="setup-deadlift">DL</label><input id="setup-deadlift" type="number" min="20" step="2.5" value="145" required></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label for="setup-date">開始日</label><input id="setup-date" type="date" required></div>
+      <div class="dialog-actions"><button class="btn primary" value="default" id="start-program">この内容で開始</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="edit-dialog">
+    <form method="dialog" class="dialog-body" id="edit-form">
+      <h2 id="edit-title">提案を調整</h2>
+      <p>当日だけ、または今後の同じ枠へ反映できます。</p>
+      <input id="edit-index" type="hidden"><input id="edit-slot" type="hidden">
+      <div class="actual-grid">
+        <div class="field"><label for="edit-weight">重量 kg</label><input id="edit-weight" type="number" min="0" step="0.25"></div>
+        <div class="field"><label for="edit-reps">回数</label><input id="edit-reps" type="number" min="1" step="1"></div>
+        <div class="field"><label for="edit-sets">セット</label><input id="edit-sets" type="number" min="1" step="1"></div>
+        <div class="field wide"><label for="edit-scope">反映範囲</label><select id="edit-scope"><option value="once">このセッションだけ</option><option value="future">今後の同じ種目枠</option></select></div>
+      </div>
+      <div class="dialog-actions"><button class="btn" value="cancel">キャンセル</button><button class="btn primary" value="default" id="save-edit">保存</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="max-dialog">
+    <form method="dialog" class="dialog-body" id="max-form">
+      <h2>同日SBD MAX測定</h2>
+      <p>その日に成功した最高重量を入力します。記録更新がなければ現在値を維持します。</p>
+      <div class="setup-grid">
+        <div class="field"><label for="test-squat">SQ成功</label><input id="test-squat" type="number" min="20" step="2.5"></div>
+        <div class="field"><label for="test-bench">BP成功</label><input id="test-bench" type="number" min="20" step="2.5"></div>
+        <div class="field"><label for="test-deadlift">DL成功</label><input id="test-deadlift" type="number" min="20" step="2.5"></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label for="test-note">メモ</label><textarea id="test-note" placeholder="第3試技を見送った、動きが重かった等"></textarea></div>
+      <div class="dialog-actions"><button class="btn" value="cancel">戻る</button><button class="btn primary" value="default" id="save-max-test">測定結果を保存して完了</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const STORAGE_KEY = 'big3-progression-v1';
+      const DEFAULT_MAXES = { squat: 140, bench: 112.5, deadlift: 145 };
+      const LIFT_LABELS = { squat: 'スクワット', bench: 'ベンチプレス', deadlift: 'デッドリフト' };
+      const RESULT_LABELS = { easy: '余裕あり', good: '適正', heavy: 'かなり重い', fail: '未達', missed: '未実施' };
+      const PHASES = { build: '蓄積', intensify: '強度', taper: '調整', max: 'MAX測定' };
+
+      const equipment = [
+        'パワー・ラック', 'アジャスタブル・ベンチ', 'ダンベル 1〜50kg', 'フライ・リアデルトイド',
+        'アシスト・ディップ・チン', 'シーテッド・レッグ・カール', 'アブドミナル',
+        'デュアル・アジャスタブル・プーリー', 'アイソラテラル・DY・ロー',
+        'アイソラテラル・ショルダー・プレス', 'Vスクワット', 'リニア・レッグ・プレス',
+        'バック・エクステンション', 'シーテッド・アーム・カール'
+      ];
+
+      const references = [
+        ['aW5V4iL8u50', '【BIG3】俺達が伸びたプログラム！', 'BIG3を計画的な枠に分けて反復する発想', '週4日の役割分担と8週間の段階構成'],
+        ['cjLHbclmJFs', '【BIG3】初心者･中級者は重量を伸ばしたいならこのメニューやっとけ！', '中級までの優先順位をBIG3練習量へ置く考え方', '補助種目を絞り、主運動を先に配置'],
+        ['Eo2nDSpQ4VU', 'これやっとけ！BIG3伸ばすメニューの組み方【初心者】', 'メニューを複雑にしすぎず基本種目を反復', '固定7枠を週内で繰り返す設計'],
+        ['75DxIWNjPto', '週3のトレーニングでBIG3「500kg」はいける！？', '限られた日数でも主要練習を外さない構成', '60分の日は補助を優先順で削れる仕様'],
+        ['ty2BxFu725o', '週4で【BIG3】690kg！？24Hジムでも強くなり続ける男のトレーニングルーティン', '24時間ジムでの週4ルーティン例', '週4日と市販ジム設備だけで完結'],
+        ['b9i3jqE-DJw', '忙しても強くなれる！社会人リフターの時短トレ！', '社会人向けに主目的を保った時短', '平日60分・休日90分の優先順位表示'],
+        ['vEPgNmQw0TE', 'ベンチプレスの伸ばし方！頻度編', 'ベンチの頻度を分散させる発想', '通常・ポーズ・強度の週3回'],
+        ['s0a-xOruRtU', '【80kg→100kg】ベンチプレス100kgへのメニュー作ってみた', '段階的に負荷を上げるベンチメニュー', '蓄積から強度へ移行する負荷設定'],
+        ['JwYyyhGSVPw', '【140kg】ベンチプレスを伸ばすオススメの種目〜ウッシーのリアル練習', 'ベンチを支えるプレス・背中の補助', 'インクラインDB、DYロー、三頭筋補助'],
+        ['Upzh2GCcFkY', 'ベンチプレス初心者におすすめのセットの組み方', 'セットを目的別に組む基本', '重いシングルとバックオフを分離'],
+        ['FN8r3KGgdwE', '【デッドリフト】最大20kgアップ！週１回だから誰でも出来るプログラム！', 'デッドリフトを計画的に漸進させる発想', '重い通常デッド枠の週次進行'],
+        ['z6PRbFdNvvA', '【永遠の課題】デッドリフトを伸ばす！頻度を高めるには？', '疲労を抑えながら頻度を増やす考え方', '通常デッド＋軽いポーズデッドの週2回'],
+        ['L8BBQMC8a-U', 'デッドリフトは◯発◯セットで伸ばせ！実際に伸ばしたセットを特別公開！', '反復セットでデッドリフトを作る発想', '3〜5回のバックオフを中心に設定'],
+        ['2ZdlqOJCeV0', 'デッドリフトが伸びる３つのポイント！フォーム解説！', 'デッドリフトの再現性を技術課題として扱う', 'ポーズデッドとフォームメモ欄'],
+        ['MBDov0NL_C4', '【無料配布】BIG3プログラム製作所〜安定したスクワットプログラム〜', 'スクワットを安定して反復するプログラム発想', '重い日とボリューム日の週2回'],
+        ['f6DTTD8gOZI', '鍵は骨盤？しゃがんだら力が入らないスクワットを卒業しよう！', 'しゃがみで力を失わないフォーム意識', 'スクワット日のメモとフォーム優先判定'],
+        ['Vd5rrACQbvI', '正しい腹圧のかけ方！スクワット、デッドリフトの腹圧', 'スクワット・デッドでの腹圧の重要性', '両種目の共通キューとして表示'],
+        ['MEsBev97SQY', '高頻度トレを行う疲労回復方法とは？', '高頻度では回復もプログラムの一部', '重い結果の連続でセット数を自動削減'],
+        ['bLuDFi1VzBQ', '身体バキバキの時どうしてる？', '疲労が強い日の無理な進行を避ける判断', '延期・未実施・スキップを明確に分離'],
+        ['agHJUfBON0g', 'BIG3を伸ばすはめ込みとは？', '挙上動作の各局面を連続させる意識', '失敗ではなく再現性を重視するトップシングル']
+      ];
+
+      const accessories = {
+        legCurl: { slot: 'leg_curl', name: 'シーテッド・レッグ・カール', reps: 10, maxReps: 12, sets: 3, step: 2.5, note: 'ハムストリングス' },
+        abs: { slot: 'abdominal', name: 'アブドミナル', reps: 10, maxReps: 15, sets: 2, step: 2.5, note: '腹圧を支える体幹' },
+        dyRow: { slot: 'dy_row', name: 'アイソラテラル・DY・ロー', reps: 8, maxReps: 10, sets: 3, step: 2.5, note: '上背部・広背筋' },
+        triceps: { slot: 'overhead_extension', name: 'オーバーヘッドエクステンション', reps: 10, maxReps: 12, sets: 2, step: 1.25, note: 'ケーブル／上腕三頭筋' },
+        incline: { slot: 'incline_db', name: 'インクラインダンベルプレス', reps: 8, maxReps: 10, sets: 3, step: 2, note: 'ダンベル片手重量' },
+        chin: { slot: 'chinup', name: '懸垂（アシスト可）', reps: 6, maxReps: 10, sets: 3, step: 2.5, note: '背中・肩甲帯' },
+        shoulder: { slot: 'shoulder_press', name: 'マシンショルダープレス', reps: 8, maxReps: 10, sets: 2, step: 2.5, note: '肩・上腕三頭筋' },
+        rear: { slot: 'rear_delt', name: 'リアデルトフライ', reps: 12, maxReps: 15, sets: 2, step: 2.5, note: '三角筋後部' },
+        preacher: { slot: 'preacher_curl', name: 'ストリクトプリーチャーカール', reps: 8, maxReps: 10, sets: 2, step: 2.5, note: 'シーテッド・アーム・カール' },
+        vSquat: { slot: 'v_squat', name: 'Vスクワット', reps: 8, maxReps: 10, sets: 3, step: 5, note: 'スクワット補助' },
+        backExt: { slot: 'back_extension', name: 'バック・エクステンション', reps: 10, maxReps: 12, sets: 2, step: 2.5, note: '臀部・脊柱起立筋' }
+      };
+
+      function main(slot, lift, name, percent, reps, sets, secondary = '', note = '') {
+        return { slot, lift, name, percent, reps, sets, secondary, note, isMain: true };
+      }
+      function acc(key, optional = false) { return { ...accessories[key], isMain: false, optional }; }
+      function day(week, letter, phase, title, focus, exercises, duration = 60) {
+        return { week, letter, phase, title, focus, exercises, duration, maxTest: false };
+      }
+      function maxDay(week) {
+        return { week, letter: 'D', phase: 'max', title: '同日SBD MAX測定', focus: 'SQ → BP → DLの順で、その日に成功した最高重量を記録', duration: 90, exercises: [], maxTest: true };
+      }
+
+      const program = [
+        day(1,'A','build','SQ強度＋BP量','失敗しないシングルと反復量',[
+          main('squat_heavy','squat','ハイバースクワット',.725,4,4,'トップシングル 85%TM ×1','腹圧を固めて同じ軌道を再現'),
+          main('bench_volume','bench','ベンチプレス',.725,6,4,'','全レップ同じタッチ位置'), acc('legCurl'), acc('abs')]),
+        day(1,'B','build','DL強度＋ポーズBP','床引きの再現性と胸上停止',[
+          main('dead_heavy','deadlift','コンベンショナルデッドリフト',.725,4,4,'トップシングル 85%TM ×1','バーのたわみを取り、腹圧を維持'),
+          main('bench_pause','bench','ポーズベンチプレス',.70,5,4,'胸上で1秒停止','停止中も背中を保つ'), acc('dyRow'), acc('triceps')]),
+        day(1,'C','build','BP強度＋上半身','重いBPの技術と上半身補強',[
+          main('bench_heavy','bench','ベンチプレス',.80,3,5,'トップシングル 87.5%TM ×1','限界反復は行わない'), acc('incline'), acc('chin'), acc('shoulder',true), acc('rear',true), acc('preacher',true)]),
+        day(1,'D','build','SQ量＋DL技術','下半身の反復量を休日にまとめる',[
+          main('squat_volume','squat','ハイバースクワット',.70,5,5,'','深さと切り返しを揃える'),
+          main('dead_pause','deadlift','ポーズデッドリフト',.65,5,3,'床から浮かせた直後で1秒停止','軽い負荷で開始姿勢を学習'), acc('vSquat'), acc('legCurl'), acc('backExt'), acc('abs',true)],90),
+
+        day(2,'A','build','SQ強度＋BP量','予定値を小さく前進',[
+          main('squat_heavy','squat','ハイバースクワット',.75,4,4,'トップシングル 87.5%TM ×1'), main('bench_volume','bench','ベンチプレス',.75,6,4), acc('legCurl'), acc('abs')]),
+        day(2,'B','build','DL強度＋ポーズBP','通常デッドの反復を優先',[
+          main('dead_heavy','deadlift','コンベンショナルデッドリフト',.75,4,4,'トップシングル 87.5%TM ×1'), main('bench_pause','bench','ポーズベンチプレス',.725,5,4,'胸上で1秒停止'), acc('dyRow'), acc('triceps')]),
+        day(2,'C','build','BP強度＋上半身','強度を上げても余力を残す',[
+          main('bench_heavy','bench','ベンチプレス',.825,3,5,'トップシングル 90%TM ×1'), acc('incline'), acc('chin'), acc('shoulder',true), acc('rear',true), acc('preacher',true)]),
+        day(2,'D','build','SQ量＋DL技術','量を維持して技術を反復',[
+          main('squat_volume','squat','ハイバースクワット',.725,5,5), main('dead_pause','deadlift','ポーズデッドリフト',.675,5,3,'床から浮かせた直後で1秒停止'), acc('vSquat'), acc('legCurl'), acc('backExt'), acc('abs',true)],90),
+
+        day(3,'A','intensify','SQ強度＋BP量','回数を落として強度へ移行',[
+          main('squat_heavy','squat','ハイバースクワット',.775,3,4,'トップシングル 90%TM ×1'), main('bench_volume','bench','ベンチプレス',.75,5,4), acc('legCurl'), acc('abs')]),
+        day(3,'B','intensify','DL強度＋ポーズBP','重いDLを失敗なしで処理',[
+          main('dead_heavy','deadlift','コンベンショナルデッドリフト',.775,3,4,'トップシングル 90%TM ×1'), main('bench_pause','bench','ポーズベンチプレス',.725,4,4,'胸上で1秒停止'), acc('dyRow'), acc('triceps')]),
+        day(3,'C','intensify','BP強度＋上半身','MAX前の重いBP練習',[
+          main('bench_heavy','bench','ベンチプレス',.825,3,4,'トップシングル 92.5%TM ×1'), acc('incline'), acc('chin'), acc('rear',true), acc('preacher',true)]),
+        day(3,'D','intensify','SQ量＋DL技術','疲労を増やしすぎない量へ',[
+          main('squat_volume','squat','ハイバースクワット',.725,4,4), main('dead_pause','deadlift','ポーズデッドリフト',.675,4,3,'床から浮かせた直後で1秒停止'), acc('vSquat'), acc('legCurl'), acc('backExt')],90),
+
+        day(4,'A','taper','SQ調整＋軽いBP','疲労を抜きながら動きを確認',[
+          main('squat_heavy','squat','ハイバースクワット',.65,3,2,'トップシングル 87.5%TM ×1'), main('bench_volume','bench','ベンチプレス',.65,3,3), acc('legCurl',true)]),
+        day(4,'B','taper','DL調整＋軽いポーズBP','短時間で試技動作を確認',[
+          main('dead_heavy','deadlift','コンベンショナルデッドリフト',.65,2,2,'トップシングル 87.5%TM ×1'), main('bench_pause','bench','ポーズベンチプレス',.60,3,2,'胸上で1秒停止'), acc('dyRow',true)]),
+        day(4,'C','taper','BP調整','MAX前はボリュームを残さない',[
+          main('bench_heavy','bench','ベンチプレス',.60,2,2,'トップシングル 87.5%TM ×1'), acc('rear',true)]),
+        maxDay(4),
+
+        day(5,'A','build','SQ強度＋BP量','新TMで次ブロックを再開',[
+          main('squat_heavy','squat','ハイバースクワット',.75,3,4,'トップシングル 87.5%TM ×1'), main('bench_volume','bench','ベンチプレス',.75,5,4), acc('legCurl'), acc('abs')]),
+        day(5,'B','build','DL強度＋ポーズBP','新TMで成功反復を蓄積',[
+          main('dead_heavy','deadlift','コンベンショナルデッドリフト',.75,3,4,'トップシングル 87.5%TM ×1'), main('bench_pause','bench','ポーズベンチプレス',.725,4,4,'胸上で1秒停止'), acc('dyRow'), acc('triceps')]),
+        day(5,'C','build','BP強度＋上半身','MAX後は余裕を戻して再開',[
+          main('bench_heavy','bench','ベンチプレス',.825,3,4,'トップシングル 90%TM ×1'), acc('incline'), acc('chin'), acc('shoulder',true), acc('rear',true), acc('preacher',true)]),
+        day(5,'D','build','SQ量＋DL技術','技術量を再び積み上げる',[
+          main('squat_volume','squat','ハイバースクワット',.725,4,4), main('dead_pause','deadlift','ポーズデッドリフト',.675,4,3,'床から浮かせた直後で1秒停止'), acc('vSquat'), acc('legCurl'), acc('backExt'), acc('abs',true)],90),
+
+        day(6,'A','intensify','SQ強度＋BP量','強度を上げ、セットは管理',[
+          main('squat_heavy','squat','ハイバースクワット',.775,3,4,'トップシングル 90%TM ×1'), main('bench_volume','bench','ベンチプレス',.775,4,4), acc('legCurl'), acc('abs')]),
+        day(6,'B','intensify','DL強度＋ポーズBP','重さへの適応を作る',[
+          main('dead_heavy','deadlift','コンベンショナルデッドリフト',.775,3,4,'トップシングル 90%TM ×1'), main('bench_pause','bench','ポーズベンチプレス',.75,4,4,'胸上で1秒停止'), acc('dyRow'), acc('triceps')]),
+        day(6,'C','intensify','BP強度＋上半身','高強度でも失敗しない',[
+          main('bench_heavy','bench','ベンチプレス',.85,2,4,'トップシングル 92.5%TM ×1'), acc('incline'), acc('chin'), acc('rear',true), acc('preacher',true)]),
+        day(6,'D','intensify','SQ量＋DL技術','疲労対効果の高いセット数',[
+          main('squat_volume','squat','ハイバースクワット',.75,4,4), main('dead_pause','deadlift','ポーズデッドリフト',.70,3,4,'床から浮かせた直後で1秒停止'), acc('vSquat'), acc('legCurl'), acc('backExt')],90),
+
+        day(7,'A','intensify','SQ強度＋BP量','MAX前最後の強度週',[
+          main('squat_heavy','squat','ハイバースクワット',.80,2,3,'トップシングル 92.5%TM ×1'), main('bench_volume','bench','ベンチプレス',.775,4,3), acc('legCurl'), acc('abs',true)]),
+        day(7,'B','intensify','DL強度＋ポーズBP','成功率を最優先',[
+          main('dead_heavy','deadlift','コンベンショナルデッドリフト',.80,2,3,'トップシングル 92.5%TM ×1'), main('bench_pause','bench','ポーズベンチプレス',.75,3,3,'胸上で1秒停止'), acc('dyRow'), acc('triceps',true)]),
+        day(7,'C','intensify','BP強度＋上半身','重いシングルをきれいに終える',[
+          main('bench_heavy','bench','ベンチプレス',.85,2,3,'トップシングル 95%TM ×1'), acc('incline'), acc('chin'), acc('rear',true)]),
+        day(7,'D','intensify','SQ量＋DL技術','MAXへ向け量を減らし始める',[
+          main('squat_volume','squat','ハイバースクワット',.725,3,3), main('dead_pause','deadlift','ポーズデッドリフト',.675,3,3,'床から浮かせた直後で1秒停止'), acc('legCurl'), acc('backExt')],90),
+
+        day(8,'A','taper','SQ調整＋軽いBP','疲労を抜きながら動きを確認',[
+          main('squat_heavy','squat','ハイバースクワット',.65,3,2,'トップシングル 87.5%TM ×1'), main('bench_volume','bench','ベンチプレス',.65,3,3), acc('legCurl',true)]),
+        day(8,'B','taper','DL調整＋軽いポーズBP','短時間で試技動作を確認',[
+          main('dead_heavy','deadlift','コンベンショナルデッドリフト',.65,2,2,'トップシングル 87.5%TM ×1'), main('bench_pause','bench','ポーズベンチプレス',.60,3,2,'胸上で1秒停止'), acc('dyRow',true)]),
+        day(8,'C','taper','BP調整','MAX前はボリュームを残さない',[
+          main('bench_heavy','bench','ベンチプレス',.60,2,2,'トップシングル 87.5%TM ×1'), acc('rear',true)]),
+        maxDay(8)
+      ];
+
+      const initialState = () => ({
+        version: 1, started: false, finished: false, startDate: '', currentIndex: 0, cycle: 1,
+        maxes: { ...DEFAULT_MAXES }, block1Maxes: { ...DEFAULT_MAXES }, block2Maxes: { ...DEFAULT_MAXES },
+        startMaxes: { ...DEFAULT_MAXES }, history: [], statuses: {}, maxHistory: [], streaks: {},
+        sessionOverrides: {}, baselines: {}, accessoryLoads: {}
+      });
+
+      let state = loadState();
+      let selectedProgramIndex = state.currentIndex || 0;
+
+      function loadState() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          return parsed ? { ...initialState(), ...parsed } : initialState();
+        } catch { return initialState(); }
+      }
+      function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+      function roundPlate(value) { return Math.round(value / 2.5) * 2.5; }
+      function fmt(value) { return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(2))); }
+      function todayISO() { return new Date().toLocaleDateString('sv-SE'); }
+      function tmFor(index, lift) {
+        const maxes = program[index].week <= 4 ? state.block1Maxes : state.block2Maxes;
+        return roundPlate(maxes[lift] * .95);
+      }
+      function baseTarget(index, exercise) {
+        let weight = null;
+        if (exercise.isMain) weight = roundPlate(tmFor(index, exercise.lift) * exercise.percent);
+        else if (state.accessoryLoads[exercise.slot] != null) weight = state.accessoryLoads[exercise.slot];
+        let target = { weight, reps: exercise.reps, sets: exercise.sets };
+        const baseline = state.baselines[exercise.slot];
+        if (baseline) {
+          if (target.weight != null) target.weight = Math.max(0, target.weight + (baseline.weightDelta || 0));
+          target.reps = Math.max(1, target.reps + (baseline.repsDelta || 0));
+          target.sets = Math.max(1, target.sets + (baseline.setsDelta || 0));
+        }
+        return target;
+      }
+      function getTarget(index, exercise) {
+        const base = baseTarget(index, exercise);
+        const override = state.sessionOverrides[index]?.[exercise.slot];
+        return override ? { ...base, ...override } : base;
+      }
+      function topSingleWeight(index, exercise) {
+        if (!exercise.secondary || !exercise.isMain) return null;
+        const match = exercise.secondary.match(/([0-9.]+)%TM/);
+        return match ? roundPlate(tmFor(index, exercise.lift) * (Number(match[1]) / 100)) : null;
+      }
+      function optionMarkup() {
+        return '<option value="" selected disabled>結果を選択</option>' +
+          Object.entries(RESULT_LABELS).map(([v,l]) => `<option value="${v}">${l}</option>`).join('');
+      }
+      function exerciseTargetText(target, exercise) {
+        const range = !exercise.isMain && exercise.maxReps ? `${target.reps}–${exercise.maxReps}` : target.reps;
+        return `${target.weight == null ? '' : `${fmt(target.weight)}<small>kg</small> × `}${range}<small>回</small> × ${target.sets}<small>セット</small>`;
+      }
+      function exerciseCard(exercise, index, editable = true) {
+        const target = getTarget(index, exercise);
+        const top = topSingleWeight(index, exercise);
+        const override = state.sessionOverrides[index]?.[exercise.slot];
+        const secondary = exercise.secondary ? exercise.secondary.replace(/[0-9.]+%TM ×1/, top ? `${fmt(top)}kg ×1` : exercise.secondary) : '';
+        return `<article class="card exercise-card" data-lift="${exercise.lift || 'accessory'}" data-slot="${exercise.slot}">
+          <div class="exercise-top"><div><h3>${exercise.name}</h3><p>${exercise.note || (exercise.isMain ? '主運動' : '')}</p></div><span class="tag ${exercise.isMain ? 'main' : exercise.optional ? 'optional' : ''}">${exercise.isMain ? 'MAIN' : exercise.optional ? '時間次第' : '補助'}</span></div>
+          <div class="target">${exerciseTargetText(target, exercise)}</div>
+          ${secondary ? `<div class="secondary-target">${secondary}</div>` : ''}
+          ${override?.reason ? `<p class="auto-note">自動提案：${override.reason}</p>` : ''}
+          ${editable ? `<div class="field"><label for="result-${index}-${exercise.slot}">実施結果</label><select class="result-select" id="result-${index}-${exercise.slot}" data-result-slot="${exercise.slot}" required>${optionMarkup()}</select></div>
+          <details class="details-toggle"><summary>実績・メモを入力</summary>
+            <div class="actual-grid">
+              <div class="field"><label>重量 kg</label><input type="number" step="0.25" min="0" data-actual="weight" value="${target.weight ?? ''}" placeholder="任意"></div>
+              <div class="field"><label>回数</label><input type="number" step="1" min="0" data-actual="reps" value="${target.reps}" placeholder="任意"></div>
+              <div class="field"><label>セット</label><input type="number" step="1" min="0" data-actual="sets" value="${target.sets}" placeholder="任意"></div>
+              <div class="field wide"><label>メモ</label><textarea data-actual="note" placeholder="フォーム、失速位置など"></textarea></div>
+            </div>
+          </details>
+          <button class="mini-btn" data-edit-target="${index}|${exercise.slot}">提案を手動調整</button>` : ''}
+        </article>`;
+      }
+      function sessionMarkup(index, editable = false) {
+        const session = program[index];
+        if (session.maxTest) {
+          return `<div class="hero"><p class="eyebrow">Week ${session.week} · Day ${session.letter}</p><h2>${session.title}</h2><p class="hero-copy">${session.focus}</p><div class="hero-meta"><span class="tag main">${PHASES[session.phase]}</span><span class="tag">約${session.duration}分</span></div></div>
+            <div class="section-head"><div><h3>測定の流れ</h3><p>MAX詳細は当日の動きに合わせて調整</p></div></div>
+            <div class="card"><ol class="rule-list"><li>スクワット → ベンチプレス → デッドリフトの順</li><li>各種目で成功した最高重量を記録</li><li>新1RMの95%を次ブロックのTMに設定</li><li>記録が出なさそうなら「延期」、測定を見送って進むなら「スキップ」</li></ol></div>`;
+        }
+        return `<div class="hero"><p class="eyebrow">Week ${session.week} · Day ${session.letter}</p><h2>${session.title}</h2><p class="hero-copy">${session.focus}</p><div class="hero-meta"><span class="tag main">${PHASES[session.phase]}</span><span class="tag">約${session.duration}分</span><span class="tag">SQ週2・BP週3・DL週2</span></div></div>
+          <div class="section-head"><div><h3>${editable ? '今日のメニュー' : 'メニュー詳細'}</h3><p>上から優先。時間不足時は「時間次第」から省略</p></div></div>
+          <div class="exercise-list">${session.exercises.map(ex => exerciseCard(ex, index, editable)).join('')}</div>`;
+      }
+
+      function renderToday() {
+        const box = document.getElementById('today-content');
+        if (!state.started) { box.innerHTML = '<div class="empty card">初回設定を完了するとメニューが表示されます。</div>'; return; }
+        if (state.finished) { box.innerHTML = finishMarkup(); return; }
+        const index = state.currentIndex;
+        const session = program[index];
+        box.innerHTML = sessionMarkup(index, true) + `<div class="action-dock">
+          <div class="action-primary"><button class="btn primary" id="complete-session">${session.maxTest ? 'MAX結果を入力して完了' : 'このトレーニングを完了'}</button></div>
+          <div class="action-secondary"><button class="btn warning" id="postpone-session">延期</button><button class="btn" id="skip-session">スキップ</button></div>
+        </div>`;
+        document.getElementById('complete-session').addEventListener('click', () => session.maxTest ? openMaxDialog() : completeRegular());
+        document.getElementById('postpone-session').addEventListener('click', postponeSession);
+        document.getElementById('skip-session').addEventListener('click', skipSession);
+        bindEditButtons();
+      }
+
+      function finishMarkup() {
+        const start = state.startMaxes;
+        const total = state.maxes.squat + state.maxes.bench + state.maxes.deadlift;
+        const startTotal = start.squat + start.bench + start.deadlift;
+        const skips = state.history.filter(x => x.status === 'skip').length;
+        const fails = state.history.flatMap(x => x.results || []).filter(x => x.result === 'fail').length;
+        return `<div class="hero"><p class="eyebrow">Cycle ${state.cycle} complete</p><h2>8週間を完了</h2><p class="hero-copy">結果を確認し、次サイクルは手動で開始してください。</p></div>
+          <div class="section-head"><div><h3>サイクル結果</h3></div></div>
+          <div class="metrics">
+            <div class="card metric"><p>Squat</p><strong>${fmt(state.maxes.squat)}kg</strong><small>${signed(state.maxes.squat-start.squat)}kg</small></div>
+            <div class="card metric"><p>Bench</p><strong>${fmt(state.maxes.bench)}kg</strong><small>${signed(state.maxes.bench-start.bench)}kg</small></div>
+            <div class="card metric"><p>Deadlift</p><strong>${fmt(state.maxes.deadlift)}kg</strong><small>${signed(state.maxes.deadlift-start.deadlift)}kg</small></div>
+            <div class="card metric total"><p>Total</p><strong>${fmt(total)}kg</strong><small>${signed(total-startTotal)}kg</small></div>
+          </div>
+          <div class="card" style="margin-top:12px"><p style="margin:0;color:var(--muted)">スキップ ${skips}回 ／ 未達 ${fails}件</p><p style="margin-bottom:0">次回は現在のMAXを開始値として、同じ8週間を再計算できます。</p></div>
+          <button class="btn primary" style="width:100%;margin-top:14px" id="new-cycle">次の8週間を開始</button>`;
+      }
+      function signed(v) { return `${v >= 0 ? '+' : ''}${fmt(v)}`; }
+
+      function bindEditButtons() {
+        document.querySelectorAll('[data-edit-target]').forEach(button => button.addEventListener('click', () => {
+          const [index, slot] = button.dataset.editTarget.split('|');
+          const exercise = program[Number(index)].exercises.find(ex => ex.slot === slot);
+          const target = getTarget(Number(index), exercise);
+          document.getElementById('edit-title').textContent = `${exercise.name}を調整`;
+          document.getElementById('edit-index').value = index;
+          document.getElementById('edit-slot').value = slot;
+          document.getElementById('edit-weight').value = target.weight ?? '';
+          document.getElementById('edit-reps').value = target.reps;
+          document.getElementById('edit-sets').value = target.sets;
+          document.getElementById('edit-scope').value = 'once';
+          document.getElementById('edit-dialog').showModal();
+        }));
+      }
+
+      function collectResults(index) {
+        const cards = [...document.querySelectorAll('#today-content [data-slot]')];
+        const results = [];
+        for (const card of cards) {
+          const slot = card.dataset.slot;
+          const exercise = program[index].exercises.find(ex => ex.slot === slot);
+          const select = card.querySelector('[data-result-slot]');
+          if (!select.value) { select.focus(); toast(`${exercise.name}の結果を選択してください`); return null; }
+          const value = key => card.querySelector(`[data-actual="${key}"]`)?.value;
+          results.push({
+            slot, name: exercise.name, lift: exercise.lift || null, isMain: exercise.isMain,
+            result: select.value, target: getTarget(index, exercise),
+            actual: { weight: toNumber(value('weight')), reps: toNumber(value('reps')), sets: toNumber(value('sets')), note: value('note') || '' }
+          });
+        }
+        return results;
+      }
+      function toNumber(value) { return value === '' || value == null ? null : Number(value); }
+
+      function completeRegular() {
+        const index = state.currentIndex;
+        const results = collectResults(index);
+        if (!results) return;
+        results.forEach(result => applyResult(index, result));
+        record(index, 'complete', results);
+        advance();
+        toast('保存しました。次のセッションを再計算しました');
+      }
+      function nextOccurrence(index, slot) {
+        for (let i = index + 1; i < program.length; i++) {
+          if (program[i].exercises.some(ex => ex.slot === slot)) return i;
+        }
+        return -1;
+      }
+      function applyResult(index, entry) {
+        const exercise = program[index].exercises.find(ex => ex.slot === entry.slot);
+        const nextIndex = nextOccurrence(index, entry.slot);
+        if (nextIndex < 0) return;
+        const nextExercise = program[nextIndex].exercises.find(ex => ex.slot === entry.slot);
+        const nextBase = baseTarget(nextIndex, nextExercise);
+        const current = entry.actual.weight ?? entry.target.weight;
+        const streak = state.streaks[entry.slot] || { heavy: 0, fail: 0 };
+        streak.heavy = entry.result === 'heavy' ? streak.heavy + 1 : 0;
+        streak.fail = entry.result === 'fail' ? streak.fail + 1 : 0;
+        state.streaks[entry.slot] = streak;
+        let proposal = { ...nextBase, auto: true, reason: RESULT_LABELS[entry.result] };
+
+        if (!exercise.isMain) {
+          if (entry.actual.weight != null) state.accessoryLoads[entry.slot] = entry.actual.weight;
+          const achievedUpper = entry.result === 'easy' || (entry.actual.reps != null && entry.actual.reps >= (exercise.maxReps || exercise.reps));
+          if (achievedUpper && current != null) proposal.weight = current + (exercise.step || 2.5);
+          else if (entry.result === 'fail' && current != null) proposal.weight = Math.max(0, current - (exercise.step || 2.5));
+          else if (current != null) proposal.weight = current;
+          proposal.sets = nextBase.sets;
+        } else if (current != null) {
+          const inc = exercise.lift === 'bench' ? 2.5 : 5;
+          if (program[nextIndex].phase === 'taper') {
+            if (entry.result === 'heavy') proposal.weight = Math.min(nextBase.weight, current);
+            if (entry.result === 'fail') proposal.weight = Math.min(nextBase.weight, roundPlate(current * .95));
+            if (entry.result === 'missed') proposal.weight = Math.min(nextBase.weight, current);
+          } else {
+            if (entry.result === 'easy') proposal.weight = nextBase.weight + inc;
+            if (entry.result === 'good') proposal.weight = nextBase.weight;
+            if (entry.result === 'heavy') proposal.weight = roundPlate(current);
+            if (entry.result === 'fail') proposal.weight = roundPlate(current * .95);
+            if (entry.result === 'missed') proposal.weight = roundPlate(current);
+          }
+          if (streak.heavy >= 2) { proposal.sets = Math.max(1, nextBase.sets - 1); proposal.reason = 'かなり重いが2回連続：セット数−1'; }
+          if (streak.fail >= 2) { proposal.weight = roundPlate(current * .925); proposal.reps = Math.max(1, nextBase.reps - 1); proposal.reason = '未達が2回連続：−7.5%、回数−1'; }
+        }
+        state.sessionOverrides[nextIndex] ||= {};
+        state.sessionOverrides[nextIndex][entry.slot] = proposal;
+      }
+
+      function postponeSession() {
+        record(state.currentIndex, 'postponed', []);
+        state.statuses[state.currentIndex] = 'postponed';
+        saveState(); renderAll(); toast('延期しました。同じセッションを次回も表示します');
+      }
+      function skipSession() {
+        const index = state.currentIndex;
+        if (!program[index].maxTest) {
+          program[index].exercises.forEach(ex => applyResult(index, { slot: ex.slot, result: 'missed', target: getTarget(index, ex), actual: {} }));
+        }
+        record(index, 'skip', []); advance(); toast('スキップとして保存し、次へ進みました');
+      }
+      function record(index, status, results, extra = {}) {
+        state.history.push({ id: `${Date.now()}-${Math.random().toString(16).slice(2)}`, date: todayISO(), index, week: program[index].week, day: program[index].letter, title: program[index].title, status, results, ...extra });
+        if (status === 'complete' || status === 'skip') state.statuses[index] = status;
+        saveState();
+      }
+      function advance() {
+        if (state.currentIndex >= program.length - 1) state.finished = true;
+        else state.currentIndex += 1;
+        selectedProgramIndex = state.currentIndex;
+        saveState(); renderAll();
+      }
+
+      function openMaxDialog() {
+        document.getElementById('test-squat').value = state.maxes.squat;
+        document.getElementById('test-bench').value = state.maxes.bench;
+        document.getElementById('test-deadlift').value = state.maxes.deadlift;
+        document.getElementById('test-note').value = '';
+        document.getElementById('max-dialog').showModal();
+      }
+      function saveMaxTest() {
+        const index = state.currentIndex;
+        const tested = {
+          squat: Number(document.getElementById('test-squat').value) || state.maxes.squat,
+          bench: Number(document.getElementById('test-bench').value) || state.maxes.bench,
+          deadlift: Number(document.getElementById('test-deadlift').value) || state.maxes.deadlift
+        };
+        const before = { ...state.maxes };
+        for (const lift of Object.keys(tested)) state.maxes[lift] = Math.max(state.maxes[lift], tested[lift]);
+        state.maxHistory.push({ date: todayISO(), source: `Week ${program[index].week} MAX`, ...state.maxes });
+        if (program[index].week === 4) state.block2Maxes = { ...state.maxes };
+        state.streaks = {};
+        record(index, 'complete', [], { maxTest: { entered: tested, before, after: { ...state.maxes }, note: document.getElementById('test-note').value } });
+        document.getElementById('max-dialog').close();
+        advance(); toast('MAXを保存し、以降の重量を自動再計算しました');
+      }
+
+      function renderProgram() {
+        const grid = document.getElementById('week-grid');
+        grid.innerHTML = Array.from({ length: 8 }, (_, w) => {
+          const start = w * 4;
+          return `<div class="card week-card"><div class="week-title"><strong>Week ${w + 1}</strong><span>${w === 3 || w === 7 ? 'MAX測定週' : w < 2 || w === 4 ? '蓄積' : '強度'}</span></div><div class="day-row">${program.slice(start, start + 4).map((s, offset) => {
+            const i = start + offset, status = state.statuses[i] || '';
+            const cls = [i === state.currentIndex && !state.finished ? 'current' : '', status].filter(Boolean).join(' ');
+            return `<button class="day-pill ${cls}" data-program-index="${i}"><strong>Day ${s.letter}</strong>${s.maxTest ? 'MAX' : PHASES[s.phase]}</button>`;
+          }).join('')}</div></div>`;
+        }).join('');
+        grid.querySelectorAll('[data-program-index]').forEach(btn => btn.addEventListener('click', () => { selectedProgramIndex = Number(btn.dataset.programIndex); renderProgramPreview(); }));
+        renderProgramPreview();
+      }
+      function renderProgramPreview() { document.getElementById('program-preview').innerHTML = sessionMarkup(selectedProgramIndex, false); }
+
+      function renderHistory() {
+        const box = document.getElementById('history-list');
+        if (!state.history.length) { box.innerHTML = '<div class="card empty">まだ履歴はありません。</div>'; return; }
+        box.innerHTML = [...state.history].reverse().map(item => {
+          const labels = { complete: '完了', skip: 'スキップ', postponed: '延期', manual: '手動' };
+          const summary = item.maxTest ? `MAX：SQ ${fmt(item.maxTest.after.squat)} / BP ${fmt(item.maxTest.after.bench)} / DL ${fmt(item.maxTest.after.deadlift)}` :
+            item.results?.length ? item.results.filter(r => r.isMain).map(r => `${r.name} ${RESULT_LABELS[r.result]}`).join('・') : '実施内容なし';
+          return `<article class="card history-item"><span class="status-dot ${item.status}"></span><div><h3>W${item.week} Day ${item.day}｜${item.title}</h3><p>${item.date}｜${summary}</p></div><span class="status-text">${labels[item.status] || item.status}</span></article>`;
+        }).join('');
+      }
+
+      function renderProgress() {
+        const total = state.maxes.squat + state.maxes.bench + state.maxes.deadlift;
+        document.getElementById('metrics').innerHTML = [
+          ['Squat', state.maxes.squat, ''], ['Bench', state.maxes.bench, ''], ['Deadlift', state.maxes.deadlift, ''], ['Total', total, 'total']
+        ].map(([label,value,cls]) => `<div class="card metric ${cls}"><p>${label}</p><strong>${fmt(value)}<small>kg</small></strong></div>`).join('');
+        drawChart();
+        document.getElementById('weekly-bars').innerHTML = Array.from({ length: 8 }, (_, w) => {
+          const complete = [0,1,2,3].filter(d => state.statuses[w*4+d] === 'complete').length;
+          return `<div class="bar-row"><span>Week ${w+1}</span><div class="bar"><span style="width:${complete/4*100}%"></span></div><strong>${complete}/4</strong></div>`;
+        }).join('');
+      }
+      function drawChart() {
+        const svg = document.getElementById('progress-chart');
+        const data = state.maxHistory.length ? state.maxHistory : [{ date: state.startDate || todayISO(), source: '開始', ...state.startMaxes }];
+        const width = 600, height = 250, pad = { l: 42, r: 18, t: 20, b: 34 };
+        const vals = data.flatMap(d => [d.squat,d.bench,d.deadlift]);
+        const min = Math.floor((Math.min(...vals)-10)/10)*10, max = Math.ceil((Math.max(...vals)+10)/10)*10;
+        const x = i => pad.l + (data.length === 1 ? (width-pad.l-pad.r)/2 : i*(width-pad.l-pad.r)/(data.length-1));
+        const y = v => pad.t + (max-v)*(height-pad.t-pad.b)/(max-min || 1);
+        const colors = { squat: '#ffca68', bench: '#6fb5ff', deadlift: '#72f0aa' };
+        let out = '';
+        for (let i=0;i<=4;i++) { const value=min+(max-min)*i/4, yy=y(value); out += `<line x1="${pad.l}" y1="${yy}" x2="${width-pad.r}" y2="${yy}" stroke="#2a313d"/><text x="${pad.l-7}" y="${yy+4}" fill="#9aa5b2" font-size="10" text-anchor="end">${Math.round(value)}</text>`; }
+        for (const lift of ['squat','bench','deadlift']) {
+          const points = data.map((d,i) => `${x(i)},${y(d[lift])}`).join(' ');
+          out += `<polyline points="${points}" fill="none" stroke="${colors[lift]}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+          data.forEach((d,i) => { out += `<circle cx="${x(i)}" cy="${y(d[lift])}" r="4" fill="${colors[lift]}"/><text x="${x(i)}" y="${y(d[lift])-8}" fill="${colors[lift]}" font-size="10" text-anchor="middle">${fmt(d[lift])}</text>`; });
+        }
+        data.forEach((d,i) => { out += `<text x="${x(i)}" y="${height-10}" fill="#9aa5b2" font-size="10" text-anchor="middle">${i===0?'開始':`測定${i}`}</text>`; });
+        svg.innerHTML = out;
+      }
+
+      function renderSettings() {
+        for (const lift of Object.keys(state.maxes)) document.getElementById(`max-${lift}`).value = state.maxes[lift];
+        const move = document.getElementById('move-session');
+        move.innerHTML = program.map((s,i) => `<option value="${i}" ${i===state.currentIndex?'selected':''}>Week ${s.week} / Day ${s.letter}｜${s.title}</option>`).join('');
+        const uniqueSlots = new Map(); program.flatMap(s=>s.exercises).forEach(ex => uniqueSlots.set(ex.slot, ex.name));
+        document.getElementById('reset-slot').innerHTML = [...uniqueSlots].map(([slot,name]) => `<option value="${slot}">${name}</option>`).join('');
+        document.getElementById('equipment-list').innerHTML = `<div class="hero-meta">${equipment.map(x=>`<span class="tag">${x}</span>`).join('')}</div>`;
+        document.getElementById('reference-list').innerHTML = references.map(([id,title,idea,where]) => `<article class="card reference-card"><h3>${title}</h3><p><strong style="color:var(--text)">採用：</strong>${idea}<br><strong style="color:var(--text)">反映：</strong>${where}</p><a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener">YouTubeで開く ↗</a></article>`).join('');
+      }
+
+      function renderTop() {
+        const box = document.getElementById('top-phase');
+        if (!state.started) box.innerHTML = '<strong>初回設定</strong>';
+        else if (state.finished) box.innerHTML = '<strong>8週間完了</strong>';
+        else { const s=program[state.currentIndex]; box.innerHTML = `<strong>W${s.week} · ${s.letter}</strong> ${PHASES[s.phase]}`; }
+      }
+      function renderAll() { renderTop(); renderToday(); renderProgram(); renderHistory(); renderProgress(); renderSettings(); bindFinish(); }
+      function bindFinish() {
+        document.getElementById('new-cycle')?.addEventListener('click', () => {
+          state.cycle += 1; state.finished = false; state.currentIndex = 0; state.startDate = todayISO(); state.startMaxes = { ...state.maxes };
+          state.block1Maxes = { ...state.maxes }; state.block2Maxes = { ...state.maxes }; state.statuses = {}; state.streaks = {}; state.sessionOverrides = {};
+          state.maxHistory.push({ date: todayISO(), source: `Cycle ${state.cycle}開始`, ...state.maxes }); saveState(); renderAll(); toast('次の8週間を開始しました');
+        });
+      }
+
+      function saveEdit() {
+        const index = Number(document.getElementById('edit-index').value);
+        const slot = document.getElementById('edit-slot').value;
+        const exercise = program[index].exercises.find(ex => ex.slot === slot);
+        const base = baseTarget(index, exercise);
+        const edited = { weight: toNumber(document.getElementById('edit-weight').value), reps: Number(document.getElementById('edit-reps').value), sets: Number(document.getElementById('edit-sets').value), reason: '手動調整', manual: true };
+        if (document.getElementById('edit-scope').value === 'future') {
+          state.baselines[slot] = { weightDelta: base.weight == null || edited.weight == null ? 0 : edited.weight-base.weight, repsDelta: edited.reps-base.reps, setsDelta: edited.sets-base.sets };
+          if (!exercise.isMain && edited.weight != null) state.accessoryLoads[slot] = edited.weight;
+        } else {
+          state.sessionOverrides[index] ||= {}; state.sessionOverrides[index][slot] = edited;
+        }
+        record(index, 'manual', [], { manualChange: { slot, scope: document.getElementById('edit-scope').value, edited } });
+        document.getElementById('edit-dialog').close(); saveState(); renderAll(); toast('手動調整を保存しました');
+      }
+
+      function startProgram() {
+        state = initialState();
+        state.started = true; state.startDate = document.getElementById('setup-date').value;
+        state.maxes = { squat: Number(document.getElementById('setup-squat').value), bench: Number(document.getElementById('setup-bench').value), deadlift: Number(document.getElementById('setup-deadlift').value) };
+        state.startMaxes = { ...state.maxes }; state.block1Maxes = { ...state.maxes }; state.block2Maxes = { ...state.maxes };
+        state.maxHistory = [{ date: state.startDate, source: '開始', ...state.maxes }];
+        saveState(); document.getElementById('setup-dialog').close(); renderAll(); toast('Week 1 / Day Aを開始しました');
+      }
+
+      function toast(message) {
+        const box = document.getElementById('toast'); box.textContent = message; box.classList.add('show');
+        clearTimeout(toast.timer); toast.timer = setTimeout(() => box.classList.remove('show'), 2400);
+      }
+
+      document.querySelectorAll('.nav-btn').forEach(button => button.addEventListener('click', () => {
+        const name = button.dataset.screen;
+        document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === `screen-${name}`));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b === button));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }));
+      document.getElementById('start-program').addEventListener('click', event => { event.preventDefault(); if (document.getElementById('setup-form').reportValidity()) startProgram(); });
+      document.getElementById('save-edit').addEventListener('click', event => { event.preventDefault(); saveEdit(); });
+      document.getElementById('save-max-test').addEventListener('click', event => { event.preventDefault(); saveMaxTest(); });
+      document.getElementById('save-maxes').addEventListener('click', () => {
+        state.maxes = { squat: Number(document.getElementById('max-squat').value), bench: Number(document.getElementById('max-bench').value), deadlift: Number(document.getElementById('max-deadlift').value) };
+        if (program[state.currentIndex]?.week <= 4) state.block1Maxes = { ...state.maxes }; else state.block2Maxes = { ...state.maxes };
+        state.maxHistory.push({ date: todayISO(), source: '手動', ...state.maxes }); record(state.currentIndex, 'manual', [], { manualMax: { ...state.maxes } }); saveState(); renderAll(); toast('MAXを手動更新しました');
+      });
+      document.getElementById('move-session-btn').addEventListener('click', () => {
+        state.currentIndex = Number(document.getElementById('move-session').value); state.finished = false; selectedProgramIndex = state.currentIndex;
+        record(state.currentIndex, 'manual', [], { manualMove: true }); saveState(); renderAll(); toast('進行位置を移動しました');
+      });
+      document.getElementById('reset-slot-btn').addEventListener('click', () => {
+        const slot = document.getElementById('reset-slot').value; delete state.baselines[slot]; delete state.accessoryLoads[slot]; delete state.streaks[slot];
+        Object.values(state.sessionOverrides).forEach(group => delete group[slot]); saveState(); renderAll(); toast('選択種目を初期提案へ戻しました');
+      });
+
+      document.getElementById('setup-date').value = todayISO();
+      renderAll();
+      if (!state.started) document.getElementById('setup-dialog').showModal();
+    })();
+  </script>
+</body>
+</html>
